@@ -8,6 +8,9 @@ verify_ssl = true
 [packages]
 click = "*"
 savanna = {editable = true,path = "."}
+pillow = "*"
+image = "*"
+pygeoj = "*"
 
 [requires]
 python_version = "3.7"
