@@ -1,8 +1,9 @@
 import os
 import pygeoj
 from PIL import Image
-#import matplotlib.pyplot as plt
-#import matplotlib.image as mpimg
+import numpy as np
+from skimage.transform import rescale
+
 
 IMAGES = 'images/'
 META = 'meta/'
@@ -15,9 +16,17 @@ for file_name in os.listdir(META):
 		for feature in file:
 			print(feature)
 			image = Image.open(IMAGES+feature.properties['IMAGEUUID']+'.JPG')
-			image.show()
+			print(image.size)
+			coords = feature.geometry.coordinates
+			xmin = min([coo[0] for coo in coords[0]])			
+			xmax = max([coo[0] for coo in coords[0]])			
+			ymin = min([coo[1] for coo in coords[0]])			
+			ymax = max([coo[1] for coo in coords[0]])
+			subimage = image.crop((xmin,ymin,xmax,ymax)).resize((357,357))
+			rescaled = rescale(subimage, 1.0/4.0, anti_aliasing=False)
+			rescaled.show()
 			break
-		
+				
 
 
 

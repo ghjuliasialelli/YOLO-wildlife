@@ -11,6 +11,8 @@ savanna = {editable = true,path = "."}
 pillow = "*"
 image = "*"
 pygeoj = "*"
+skimage = "*"
+scikit-image = "*"
 
 [requires]
 python_version = "3.7"
