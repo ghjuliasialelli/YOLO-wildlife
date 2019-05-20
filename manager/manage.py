@@ -20,7 +20,7 @@ def dldata():
 
 	response = urlopen(SOURCE)
 	with open(DATA, 'wb') as a:
-		for chunk in iter(response.read(1 << 20), b''):
+		for chunk in iter(lambda: response.read(1 << 20), b''):
 			a.write(chunk)
 
 	os.mkdir(IMAGES)
