@@ -3,4 +3,21 @@
 # riverdale
 
 
-Lien de téléchargement du Dataset : https://zenodo.org/record/1204408#.W2K8acJ9gck 
+## lil pipenv tut
+
+To create a pipenv environment:
+```sh
+pipenv --python 3.7
+pipenv shell
+pipenv install -e .
+```
+
+To download and extract the dataset:
+```
+manage dldata
+```
+
+To remove all data:
+```
+manage clean
+```
