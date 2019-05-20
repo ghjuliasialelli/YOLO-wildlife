@@ -19,11 +19,9 @@ def dldata():
 		return
 
 	response = urlopen(SOURCE)
-	bindata = response.read()
-	
 	with open(DATA, 'wb') as a:
-		a.write(bindata)
-	del bindata  # mem
+		for chunk in iter(response.read(1 << 20), b''):
+			a.write(chunk)
 
 	os.mkdir(IMAGES)
 	os.mkdir(META)
