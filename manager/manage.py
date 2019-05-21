@@ -18,11 +18,13 @@ def dldata():
 		print('already downloaded')
 		return
 
+	# stream download to not break Seb's PC
 	response = urlopen(SOURCE)
 	with open(DATA, 'wb') as a:
 		for chunk in iter(lambda: response.read(1 << 25), b''):
 			a.write(chunk)
 
+	# extract zip to nice folders
 	os.mkdir(IMAGES)
 	os.mkdir(META)
 	with zipfile.ZipFile(DATA) as z:
@@ -33,6 +35,8 @@ def dldata():
 
 @cli.command()
 def clean():
+	# delete EVERYTHING
+	# break me baby
 	shutil.rmtree(IMAGES)
 	shutil.rmtree(META)
 	os.remove(DATA)

@@ -2,3 +2,5 @@ data.zip
 images
 meta
 savanna.egg-info
+dist
+build
