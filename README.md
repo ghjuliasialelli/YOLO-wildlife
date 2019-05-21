@@ -3,13 +3,9 @@
 # riverdale
 
 
-## lil pipenv tut
-
-To create a pipenv environment:
+## lil setup tut
 ```sh
-pipenv --python 3.7
-pipenv shell
-pipenv install -e .
+python3.7 setup.py install
 ```
 
 To download and extract the dataset:
