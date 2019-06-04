@@ -6,8 +6,8 @@ import click
 
 SOURCE = 'https://zenodo.org/record/1204408/files/savmap_dataset_v2.zip?download=1' 
 IMAGES, META, DATA = 'images', 'meta', 'data.zip'
-DOWNSCALED = 'downscaledby{}'
-LABELS = 'labels.json'
+DOWNSCALED = 'downscaled{}x{}'
+LABELS = 'labels{}x{}.json'
 
 
 @click.group()
@@ -52,36 +52,40 @@ def _images():
 			yield os.path.join(p, fname)
 
 @cli.command()
-@click.argument('by')
-def downscale(by):
+@click.argument('width', 'height')
+def downscale(width, height):
 	from jpegtran import JPEGImage
-	by = int(by)
+	width, height = int(width), int(height)
 
-	if os.path.exists(DOWNSCALED.format(by)):
+	pathname = DOWNSCALED.format(width,height)
+
+	if os.path.exists(pathname):
 		print('nothing to do')
 		return
-	os.mkdir(DOWNSCALED.format(by))
+	os.mkdir(pathname)
 
 	for imgp in _images():
 		img = JPEGImage(imgp)
-		new = img.downscale(img.width // by, img.height // by)
+		new = img.downscale(width, height)
 		new.save(os.path.join(
-			DOWNSCALED.format(by),
+			name,
 			os.path.basename(imgp)))
 		print(f'downscaled {os.path.basename(imgp)}')
+	genlabels(width,height)
 
 @cli.command()
-def genlabels():
+@click.argument('width', 'height')
+def genlabels(width,height):
 	from collections import namedtuple
 	import json
 
 	from jpegtran import JPEGImage
 	import pygeoj
 
-	Cbox = namedtuple('Bbox', 'x y w h')
+	pathname = LABELS.format(width, height)
 
-	if os.path.exists(LABELS):
-		with open(LABELS) as file:
+	if os.path.exists(pathname):
+		with open(pathname) as file:
 			label = json.load(file)
 		return label
 
@@ -91,17 +95,19 @@ def genlabels():
 			file = pygeoj.load(os.path.join(META, file_name))
 			for feature in file:
 				print(feature.properties['TAGUUID'])
-				img = JPEGImage(os.path.join(IMAGES, feature.properties['IMAGEUUID']+'.JPG'))
-				x1,y1,x2,y2 = feature.geometry.bbox
-				w,h = (x2-x1,y2-y1)
-				x,y = ((x1+x2)/2,(y1+y2)/2)
-				c = 1
-				bbox = Cbox(x/img.width,y/img.height,w/img.width,h/img.height,c)
+				img = JPEGImage(os.path.join(
+					IMAGES, feature.properties['IMAGEUUID'] + '.JPG'))
+				x1, y1, x2, y2 = feature.geometry.bbox
+				x1 = int(x1 * width / img.width)
+				y1 = int(y1 * height / img.height)
+				x2 = int(x2 * width / img.width)
+				y2 = int(y2 * height / img.height)
+				bbox = [x1, y1, x2, y2]
 				if(feature.properties['IMAGEUUID'] in label):
 					label[feature.properties['IMAGEUUID']].append(bbox)
 				else:
 					label[feature.properties['IMAGEUUID']] = [bbox]
 	
-	with open(LABELS, 'w') as file:
+	with open(namepath, 'w') as file:
 		json.dump(label, file)
 	return label
