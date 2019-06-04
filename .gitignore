@@ -6,3 +6,4 @@ dist
 build
 *.JPG
 downscaledby*
+labels.json
