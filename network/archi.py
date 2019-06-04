@@ -9,7 +9,12 @@ from typing import Iterable, Tuple
 from augment import datagen, Imgs, Labels
 
 structure = [
-
+		[3,64,3],
+		[64,64,3],
+		[64,64,3],
+		[64,64,3],
+		[64,64,3],
+		[64,3,3],
 		]
 
 class YOLO(nn.Module):
@@ -18,16 +23,10 @@ class YOLO(nn.Module):
 		parameter
 		'''        
 		super(YOLO, self).__init__()
-        self.conv1 = nn.Conv2d(3, 64, 3)
-        self.pool1 = nn.MaxPool2d(2, 2)
-        self.conv2 = nn.Conv2d(3, 64, 3)
-        self.pool2 = nn.MaxPool2d(2, 2)
-        self.conv3 = nn.Conv2d(3, 64, 3)
-        self.pool3 = nn.MaxPool2d(2, 2)
-        self.conv4 = nn.Conv2d(3, 64, 3)
-        self.pool4 = nn.MaxPool2d(2, 2)
-        self.conv5 = nn.Conv2d(3, 64, 3)
-        self.pool5 = nn.MaxPool2d(2, 2)
+		self.convs = []
+		for x in structure:
+			self.convs.append(nn.Conv2d(x[0],x[1],x[2],padding=(x[2]-1)//2))
+		self.pool = nn.MaxPool2d(2)
 	
 	def forward(self,x):
 		'''compute output of (batch size) * S * S * 3
