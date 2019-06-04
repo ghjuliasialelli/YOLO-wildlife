@@ -9,6 +9,27 @@ from collections import namedtuple
 from typing import Iterable, Tuple
 from augment import datagen, Imgs, Labels
 
+"""
+this is the shape of our model
+the dotted horizontal lines are convolutional layers
+which play the role of a pooling
+the pyramids are the series of convolutions
+where we increase the dilation such that each final 
+node has seen each pixel exactly once
+
+   /|\ 
+  / | \ 
+ /  |  \ 
+ -------
+   /|\ 
+  / | \ 
+ /  |  \ 
+ -------
+   /|\ 
+  / | \ 
+ /  |  \ 
+
+"""
 nlayers = 3
 
 ndepth = 3
@@ -29,7 +50,7 @@ class YOLO(nn.Module):
 					insize, outsize, 3, padding=1+x,dilation=1+x))
 				x = 3*x+2
 			if i != ndepth:
-				self.convs.append(nn.Conv2d(64,64,3,stride=3))
+				self.convs.append(nn.Conv2d(64,64,3,stride=3))  # pooling2.0
 	
 	def forward(self,x):
 		'''compute output of (batch size) * Si * Sj * 3
@@ -56,7 +77,7 @@ def train(yolo: YOLO, data: Iterable[Tuple[Imgs, Labels]], lr: float, steps: int
 		# backpropagate
 		opt.zero_grad()
 		pred = yolo(imgs)
-		loss = lossf(pred, lbls)
+		loss = lossf(pred[..., :2], lbls[..., :2]) * lbls[.., 2] + lossf(pred[..., 2], lbls[..., 2])
 		loss.backward()
 		opt.step()
 
