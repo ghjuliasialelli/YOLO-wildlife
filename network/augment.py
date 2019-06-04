@@ -144,9 +144,14 @@ def datagen(imgsp, lblsp, Si, Sj, bs):
 		for fname in fs:
 			if not fname.endswith('.JPG'):
 				continue
-			ims.append(imread(imgsp))
+			ims.append(imread(os.path.join(p, fname)))
 	ims = np.asarray(ims)
 
 	with open(lblsp) as fl:
 		lbls = json.load(fl)
+
 	return _datagen(ims, lbls, Si, Sj, bs)
+
+
+if __name__ == '__main__':
+	datagen('downscaled1000x750', 'labels1000x750.json', 100, 75, 10)
