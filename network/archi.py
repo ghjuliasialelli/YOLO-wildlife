@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch.optim as optim
 import torch.nn.functional as F
 import torch
 import torchvision
@@ -31,7 +32,7 @@ class YOLO(nn.Module):
 				self.convs.append(nn.Conv2d(64,64,3,stride=3))
 	
 	def forward(self,x):
-		'''compute output of (batch size) * S * S * 3
+		'''compute output of (batch size) * Si * Sj * 3
 		'''
 		for i,conv in enumerate(self.convs):
 			# always use relu except last layer use sigmoid
@@ -39,13 +40,26 @@ class YOLO(nn.Module):
 			x = f(conv(x)
 		return x
 
-def train(yolo: YOLO, data: Iterable[Tuple[Imgs, Labels]], lr: float, epochs: int):
+def train(yolo: YOLO, data: Iterable[Tuple[Imgs, Labels]], lr: float, steps: int):
 	'''given an initialized yolo object, train
 	'''
-	...
+	rloss = 0
 
+	lossf = nn.MSELoss()
+	opt = optim.SGD(yolo.parameters(), lr=lr, momentum=0.9)
+	for i, (imgs, lbls) in enumerate(data):
+		if i >= steps:
+			break
 
+		# optimization step: compute loss and
+		# backpropagate
+		opt.zero_grad()
+		pred = yolo(imgs)
+		loss = lossf(pred, lbls)
+		loss.backward()
+		opt.step()
 
-def datagen():
-	while True:
-		yield imgs, labels
+		# expectation over loss, with recent loss more
+		# important
+		rloss = .9 * rloss + .1 * loss.item()
+		print(f'running loss: {rloss}')
