@@ -45,29 +45,7 @@ translation : (tx, ty) as array, list or tuple, optional
 """
 
 
-
-def augment(imgs, labels):
-    # parameter N : size of mini-batch
-    N = 10
-    ids = imgs.keys()
-
-    # we randomly select N images from the pool of imgs
-    for idx in np.random.randint(0, len(imgs), N):
-        im = imgs[ids[idx]].copy()
-
-        rotated_im = rotate(im)
-
-        flip = np.random.choice([True, False], 1)
-        if(flip): flipped_im = flip(im)
-
-        # yield img, label
-    pass
-        
-
-# label translation : i1 j1 i2 j2 
-
-
-def label_change(label, rot_matrix):
+def rotate_label(label, rot_matrix):
     vect1 = np.asarray(label[:2])
     vect2 = np.asarray(label[2:])
 
@@ -78,15 +56,38 @@ def label_change(label, rot_matrix):
 
     return new_label
 
-
 # We rotate with random angle of rotation
 # Rotate image by a certain angle around its center.
-def rotate(img_copy, label):
+# Returns the rotated image along with the new labels 
+def rotate(img_copy, labels):
     rotation = transform.SimilarityTransform(scale = 1, rotation =  np.random.vonmises(0.0,200)) # educated choice
     image_rotated = transform.warp(img_copy, rotation)
     rot_matrix = rotation.params 
-    new_label = label_change(label. rot_matrix)
-    return image_rotated, new_label
+
+    new_labels = []
+    for label in labels : 
+        new_labels.append(rotate_label(label, rot_matrix))
+
+    return image_rotated, new_labels
+
+
+
+def flip_label(label, axis):
+    if axis == 0 : 
+        i1 = 1 - label.i2
+        i2 = 1 - label.i1
+
+        j1 = label.j1
+        j2 = label.j2
+    else : 
+        j1 = 1 - label.j2
+        j2 = 1 - label.j1
+
+        i1 = label.i1
+        i2 = label.i2
+
+    new_label = (i1, j1, i2, j2)
+    return new_label
 
 """
 No skimage method designed to flip. Use numpy.flip(m, axis=None)
@@ -94,19 +95,17 @@ m : input array
 axis = 0 : flip an array vertically
 axis = 1 : flip an array horizontally
 """
-def flip(img, label):
+# We flip 
+# We return the flipped image along with new labels 
+def flip(img, labels):
     axis = np.random.choice([True, False], 1)
     new_img = np.flip(img, axis)
 
-    if axis == 0 : 
-        
-        # i1 = 1 - i2
-        # i2 = 1 - i1
+    new_labels = []
+    for label in labels : 
+        new_labels.append(flip_label(label, axis))
 
-    
-
-    return new_img, new_label
-
+    return new_img, new_labels
 
 
 
@@ -131,3 +130,32 @@ imshow(im2)
 import matplotlib
 matplotlib.pyplot.show()
 """
+
+
+def augment(imgs, all_labels):
+    # parameter N : size of mini-batch
+    N = 10
+
+    ids = imgs.keys()
+
+    # we randomly select N images from the pool of imgs
+    for idx in np.random.randint(0, len(imgs),N):
+        im_id = ids[idx]
+        img = imgs[im_id].copy()
+        labels = all_labels[im_id]
+
+        if len(labels) == 0 : continue 
+
+        # Rotate image
+        rotated_img, rotated_labels = rotate(img, labels)
+
+        # Flip image with probability 1/2
+        flip = np.random.choice([True, False],1)
+        if(flip): flipped_img, flipped_labels = flip(img, labels)
+        else : flipped_img, flipped_labels = img, labels
+
+        # rotated_label = aggregate(rotated_img, rotated_labels)
+        # flipped_label = aggregate(flipped_img, flipped_labels)
+
+        yield rotated_img, rotated_label
+        yield flipped_img, flipped_label

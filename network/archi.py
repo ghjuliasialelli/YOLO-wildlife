@@ -9,20 +9,9 @@ from collections import namedtuple
 from typing import Iterable, Tuple
 from augment import datagen, Imgs, Labels
 
-structure = [
-	[
-		[3,64,3], #Conv2d layers (input,output,kernel size)
-		[64,64,3],
-		[64,64,3],
-		[64,64,3],
-		[64,64,3],
-		[64,64,3],
-		[64,64,3],
-		[64,3,3],
-	],
-	[2,4,6] #layers at which to do a Maxpool2d(of 2) pooling
-]
+nlayers = 3
 
+ndepth = 3
 
 class YOLO(nn.Module):
 	def __init__(self):
@@ -31,18 +20,24 @@ class YOLO(nn.Module):
 		'''        
 		super(YOLO, self).__init__()
 		self.convs = []
-		for x in structure[0]:
-			self.convs.append(nn.Conv2d(x[0],x[1],x[2],padding=(x[2]-1)//2))
-		self.pool = nn.MaxPool2d(2)
-		self.pools = structure[1]
+		for i in range(ndepth):
+			x = 0
+			for j in range(nlayers):
+				insize = 3 if i+j == 0 else 64
+				outsize = 3 if i+j == ndepth+nlayers else 64
+				self.convs.append(nn.Conv2d(
+					insize, outsize, 3, padding=1+x,dilation=1+x))
+				x = 3*x+2
+			if i != ndepth:
+				self.convs.append(nn.Conv2d(64,64,3,stride=3))
 	
 	def forward(self,x):
 		'''compute output of (batch size) * Si * Sj * 3
 		'''
 		for i,conv in enumerate(self.convs):
-			if i in self.pools:
-				x = self.pool(x)
-			x = F.relu(conv(x))
+			# always use relu except last layer use sigmoid
+			f = F.sigmoid if i == len(self.convs) else F.relu
+			x = f(conv(x)
 		return x
 
 def train(yolo: YOLO, data: Iterable[Tuple[Imgs, Labels]], lr: float, steps: int):
