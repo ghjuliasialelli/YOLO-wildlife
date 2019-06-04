@@ -120,24 +120,24 @@ def _datagen(imgs: Dict[str, Img],
 
 			# rotate and possibly flip
 			rotim, rotlbls = im, lbls  # rotate(im, lbls)
-			#sflip = np.random.randint(1)
-			#if sflip:
-			#	rotim, rotlbls = flip(rotim, rotlbls)
+			# sflip = np.random.randint(1)
+			# if sflip:
+			# 	rotim, rotlbls = flip(rotim, rotlbls)
 
 			# build label tensor
-			fig, ax = plt.subplots(1)
-			ax.imshow(rotim)
+			# fig, ax = plt.subplots(1)
+			# ax.imshow(rotim)
 
 			lb = np.zeros((Si, Sj, 3))
 			for i1, j1, i2, j2 in rotlbls:
-				# a = int((Si / rotim.shape[0]) * (i1 + i2) / 2)
-				# b = int((Sj / rotim.shape[1]) * (j1 + j2) / 2)
-				# lb[a, b, 0] = (i2 - i1) / rotim.shape[0]
-				# lb[a, b, 1] = (j2 - j1) / rotim.shape[1]
-				# lb[a, b, 2] = 1
+				a = int((Si / rotim.shape[0]) * (i1 + i2) / 2)
+				b = int((Sj / rotim.shape[1]) * (j1 + j2) / 2)
+				lb[a, b, 0] = (i2 - i1) / rotim.shape[0]
+				lb[a, b, 1] = (j2 - j1) / rotim.shape[1]
+				lb[a, b, 2] = 1
 
-				r = pat.Rectangle((j1, i1), j2 - j1, i2 - i1, fill=False)
-				ax.add_patch(r)
+				# r = pat.Rectangle((j1, i1), j2 - j1, i2 - i1, fill=False)
+				# ax.add_patch(r)
 
 			plt.show()
 
