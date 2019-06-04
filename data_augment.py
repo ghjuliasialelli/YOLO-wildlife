@@ -149,6 +149,8 @@ def augment(imgs, all_labels):
         img = imgs[im_id].copy()
         labels = all_labels[im_id]
 
+        if len(labels) == 0 : continue 
+
         # Rotate image
         rotated_img, rotated_labels = rotate(img, labels)
 
@@ -157,8 +159,9 @@ def augment(imgs, all_labels):
         if(flip): flipped_img, flipped_labels = flip(img, labels)
         else : flipped_img, flipped_labels = img, labels
 
-        for label in rotated_labels : 
-            yield rotated_img, label
-        for label in flipped_labels :
-            yield flipped_img, label
+        # rotated_label = aggregate(rotated_img, rotated_labels)
+        # flipped_label = aggregate(flipped_img, flipped_labels)
+
+        yield rotated_img, rotated_label
+        yield flipped_img, flipped_label
         
