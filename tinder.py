@@ -2,7 +2,7 @@ import os
 import pygeoj
 from PIL import Image
 import numpy as np
-from skimage.transform import rescale
+#from skimage.transform import rescale
 
 
 IMAGES = 'images/'
@@ -23,8 +23,8 @@ for file_name in os.listdir(META):
 			ymin = min([coo[1] for coo in coords[0]])			
 			ymax = max([coo[1] for coo in coords[0]])
 			subimage = image.crop((xmin,ymin,xmax,ymax)).resize((357,357))
-			rescaled = rescale(subimage, 1.0/4.0, anti_aliasing=False)
-			rescaled.show()
+			#rescaled = rescale(subimage, 1.0/4.0, anti_aliasing=False)
+			#rescaled.show()
 			break
 				
 
