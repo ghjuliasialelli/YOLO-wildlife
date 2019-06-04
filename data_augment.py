@@ -45,10 +45,6 @@ translation : (tx, ty) as array, list or tuple, optional
 """
 
 
-
-# label translation : i1 j1 i2 j2 
-
-
 def rotate_label(label, rot_matrix):
     vect1 = np.asarray(label[:2])
     vect2 = np.asarray(label[2:])
@@ -136,7 +132,6 @@ matplotlib.pyplot.show()
 """
 
 
-
 def augment(imgs, all_labels):
     # parameter N : size of mini-batch
     N = 10
@@ -164,4 +159,3 @@ def augment(imgs, all_labels):
 
         yield rotated_img, rotated_label
         yield flipped_img, flipped_label
-        
