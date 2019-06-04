@@ -52,13 +52,13 @@ def _images():
 			yield os.path.join(p, fname)
 
 @cli.command()
-@click.argument('width', 'height')
+@click.argument('width')
+@click.argument('height')
 def downscale(width, height):
 	from jpegtran import JPEGImage
 	width, height = int(width), int(height)
 
-	pathname = DOWNSCALED.format(width,height)
-
+	pathname = DOWNSCALED.format(width, height)
 	if os.path.exists(pathname):
 		print('nothing to do')
 		return
@@ -68,20 +68,21 @@ def downscale(width, height):
 		img = JPEGImage(imgp)
 		new = img.downscale(width, height)
 		new.save(os.path.join(
-			name,
+			pathname,
 			os.path.basename(imgp)))
 		print(f'downscaled {os.path.basename(imgp)}')
-	genlabels(width,height)
 
 @cli.command()
-@click.argument('width', 'height')
-def genlabels(width,height):
+@click.argument('width')
+@click.argument('height')
+def genlabels(width, height):
 	from collections import namedtuple
 	import json
 
 	from jpegtran import JPEGImage
 	import pygeoj
 
+	width, height = int(width), int(height)
 	pathname = LABELS.format(width, height)
 
 	if os.path.exists(pathname):
@@ -102,12 +103,12 @@ def genlabels(width,height):
 				y1 = int(y1 * height / img.height)
 				x2 = int(x2 * width / img.width)
 				y2 = int(y2 * height / img.height)
-				bbox = [x1, y1, x2, y2]
+				bbox = [y1, x1, y2, x2]
 				if(feature.properties['IMAGEUUID'] in label):
 					label[feature.properties['IMAGEUUID']].append(bbox)
 				else:
 					label[feature.properties['IMAGEUUID']] = [bbox]
 	
-	with open(namepath, 'w') as file:
+	with open(pathname, 'w') as file:
 		json.dump(label, file)
 	return label

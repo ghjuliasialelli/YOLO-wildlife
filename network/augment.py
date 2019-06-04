@@ -1,8 +1,13 @@
-from typing import Iterable, Tuple
+from collections import namedtuple
+from typing import Iterable, Tuple, NewType, Dict, List
 import os
 import json
 
+import matplotlib.pyplot as plt
+import matplotlib.patches as pat
+from skimage import transform
 from skimage.io import imread
+import numpy as np
 
 
 # entirely for collaboration purposes
@@ -28,15 +33,15 @@ Labels = NewType('Labels', np.array)  # shape = (bs, Si, Sj, 3)
 
 
 def rotate_label(label, rot_matrix):
-    vect1 = np.asarray(label[:2])
-    vect2 = np.asarray(label[2:])
+	v1, v2 = np.zeros((3, 1)), np.zeros((3, 1))
+	v1[:2, 0] = label[:2]
+	v2[:2, 0] = label[2:]
 
-    new1 = rot_matrix @ vect1 
-    new2 = rot_matrix @ vect2
+	new1 = rot_matrix @ v1
+	new2 = rot_matrix @ v2
 
-    new_label = (new1[0], new1[1], new2[0], new2[1])
-
-    return new_label
+	new_label = (new1[0, 0], new1[1, 0], new2[0, 0], new2[1, 0])
+	return new_label
 
 # We rotate with random angle of rotation
 # Rotate image by a certain angle around its center.
@@ -53,16 +58,16 @@ def rotate(img_copy, labels):
 
     return image_rotated, new_labels
 
-def flip_label(label, axis):
+def flip_label(label, axis, rows, cols):
     if axis == 0: 
-        i1 = 1 - label.i2
-        i2 = 1 - label.i1
+        i1 = rows - label.i2
+        i2 = rows - label.i1
 
         j1 = label.j1
         j2 = label.j2
     else: 
-        j1 = 1 - label.j2
-        j2 = 1 - label.j1
+        j1 = cols - label.j2
+        j2 = cols - label.j1
 
         i1 = label.i1
         i2 = label.i2
@@ -83,7 +88,7 @@ def flip(img, labels):
 
     new_labels = []
     for label in labels: 
-        new_labels.append(flip_label(label, axis))
+        new_labels.append(flip_label(label, axis, img.shape[0], image.shape[1]))
 
     return new_img, new_labels
 
@@ -114,18 +119,28 @@ def _datagen(imgs: Dict[str, Img],
 				continue
 
 			# rotate and possibly flip
-			rotim, rotlbls = rotate(im, lbls)
-			sflip = np.random.randint(1)
-			if sflip:
-				rotim, rotlbls = flip(rotim, rotlbls)
+			rotim, rotlbls = im, lbls  # rotate(im, lbls)
+			#sflip = np.random.randint(1)
+			#if sflip:
+			#	rotim, rotlbls = flip(rotim, rotlbls)
 
 			# build label tensor
+			fig, ax = plt.subplots(1)
+			ax.imshow(rotim)
+
 			lb = np.zeros((Si, Sj, 3))
 			for i1, i2, j1, j2 in rotlbls:
-				pos = (Si * (i1 + i2) / 2, Sj * (j1 + j2) / 2)
-				lb[*pos, 0] = (i2 - i1) / rotim.shape[0]
-				lb[*pos, 1] = (j2 - j1) / rotim.shape[1]
-				lb[*pos, 2] = 1
+				# a = int((Si / rotim.shape[0]) * (i1 + i2) / 2)
+				# b = int((Sj / rotim.shape[1]) * (j1 + j2) / 2)
+				# lb[a, b, 0] = (i2 - i1) / rotim.shape[0]
+				# lb[a, b, 1] = (j2 - j1) / rotim.shape[1]
+				# lb[a, b, 2] = 1
+
+				r = pat.Rectangle((i1, j1), i2 - i1, j2 - j1, fill=False)
+				ax.add_patch(r)
+
+			plt.show()
+
 			yield rotim, lb
 
 	# aggregation into minibatches
@@ -139,13 +154,12 @@ def _datagen(imgs: Dict[str, Img],
 			mlb.clear()
 
 def datagen(imgsp, lblsp, Si, Sj, bs):
-	ims = []
+	ims = dict()
 	for p, ds, fs in os.walk(imgsp):
 		for fname in fs:
 			if not fname.endswith('.JPG'):
 				continue
-			ims.append(imread(os.path.join(p, fname)))
-	ims = np.asarray(ims)
+			ims[fname[:-4]] = imread(os.path.join(p, fname))
 
 	with open(lblsp) as fl:
 		lbls = json.load(fl)
@@ -154,4 +168,6 @@ def datagen(imgsp, lblsp, Si, Sj, bs):
 
 
 if __name__ == '__main__':
-	datagen('downscaled1000x750', 'labels1000x750.json', 100, 75, 10)
+	gen = datagen('downscaled1000x750', 'labels1000x750.json', 100, 75, 10)
+	for mbi, mbl in gen:
+		print(mbi.shape, mbl.shape)

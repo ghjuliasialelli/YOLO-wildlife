@@ -2,7 +2,9 @@ import os
 import pygeoj
 from PIL import Image
 import numpy as np
-#from skimage.transform import rescale
+from skimage.transform import rescale
+import matplotlib.pyplot as plt
+import matplotlib.patches as pat
 
 
 IMAGES = 'images/'
@@ -22,11 +24,14 @@ for file_name in os.listdir(META):
 			xmax = max([coo[0] for coo in coords[0]])			
 			ymin = min([coo[1] for coo in coords[0]])			
 			ymax = max([coo[1] for coo in coords[0]])
-			subimage = image.crop((xmin,ymin,xmax,ymax)).resize((357,357))
-			#rescaled = rescale(subimage, 1.0/4.0, anti_aliasing=False)
-			#rescaled.show()
-			break
-				
+			fig,ax = plt.subplots(1)
+			r = pat.Rectangle((xmin,ymin),xmax-xmin,ymax-ymin,fill=False)
+			ax.add_patch(r)
+			#subimage = image.crop((xmin,ymin,xmax,ymax)).resize((357,357))
+			#pix = np.array(subimage.getdata()).reshape(subimage.size[0], subimage.size[1], 3)
+			#rescaled = rescale(pix, 1.0/4.0, anti_aliasing=False)
+			ax.imshow(image)
+			plt.show()
 
 
 
