@@ -54,12 +54,14 @@ def augment(imgs, labels):
 
     # we randomly select N images from the pool of imgs
     for idx in np.random.randint(0, len(imgs),N):
-        im = imgs[ids[idx]].copy()
+        im_id = ids[idx]
+        im = imgs[im_id].copy()
+        label_list = labels[im_id]
 
-        rotated_im = rotate(im)
+        rotated_im = rotate(im, label)
 
         flip = np.random.choice([True, False],1)
-        if(flip): flipped_im = flip(im)
+        if(flip): flipped_im = flip(im, label)
 
         # yield img, label
     pass
@@ -100,11 +102,19 @@ def flip(img, label):
     new_img = np.flip(img, axis)
 
     if axis == 0 : 
-        
-        # i1 = 1 - i2
-        # i2 = 1 - i1
+        i1 = 1 - label.i2
+        i2 = 1 - label.i1
 
-    
+        j1 = label.j1
+        j2 = label.j2
+    else : 
+        j1 = 1 - label.j2
+        j2 = 1 - label.j1
+
+        i1 = label.i1
+        i2 = label.i2
+
+    new_label = (i1, j1, i2, j2)
 
     return new_img, new_label
 
