@@ -3,6 +3,9 @@ import pygeoj
 from PIL import Image
 import numpy as np
 import pickle 
+from collections import namedtuple
+
+Bbox = namedtuple('Bbox', 'x y w h c')
 
 S = 7
 B = 2
@@ -25,11 +28,10 @@ def get_labels():
 			if file_name.endswith('.geojson'):
 				file = pygeoj.load(META+file_name)
 				for feature in file:
-					bbox = feature.geometry.bbox
-					x,y,xt,yt = bbox
+					x,y,xt,yt = feature.geometry.bbox
 					w,h = (xt-x,yt-y)
 					c = 1
-					l = [x/size[0],y/size[1],w/size[0],h/size[0],c]
+					bbox = Bbox(x/size[0],y/size[1],w/size[0],h/size[0],c)
 					if(feature.properties['IMAGEUUID'] in label):
 						label[feature.properties['IMAGEUUID']].append(l)
 					else:
@@ -37,3 +39,7 @@ def get_labels():
 		with open('labels.txt','wb') as file:
 			pickle.dump(label,file)
 	return label
+
+if __name__ == '__main__':
+	label = get_labels()
+	print(label)
