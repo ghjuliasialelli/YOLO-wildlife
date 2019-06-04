@@ -10,8 +10,9 @@ setup(
 		'numpy', 'matplotlib', 'scipy',
 		'torch', 'torchvision',
 
-		# server part
-		'django',
+		# preprocessing
+		'cffi', 'jpegtran-cffi',
+		'pygeoj',
 	],
 
 	entry_points={

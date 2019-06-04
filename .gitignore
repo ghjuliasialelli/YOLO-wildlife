@@ -5,3 +5,4 @@ savanna.egg-info
 dist
 build
 *.JPG
+downscaledby*
