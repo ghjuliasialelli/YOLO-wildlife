@@ -7,6 +7,8 @@ import click
 SOURCE = 'https://zenodo.org/record/1204408/files/savmap_dataset_v2.zip?download=1' 
 IMAGES, META, DATA = 'images', 'meta', 'data.zip'
 DOWNSCALED = 'downscaledby{}'
+LABELS = 'labels.json'
+
 
 @click.group()
 def cli():
@@ -67,3 +69,39 @@ def downscale(by):
 			DOWNSCALED.format(by),
 			os.path.basename(imgp)))
 		print(f'downscaled {os.path.basename(imgp)}')
+
+@cli.command()
+def genlabels():
+	from collections import namedtuple
+	import json
+
+	from jpegtran import JPEGImage
+	import pygeoj
+
+	Bbox = namedtuple('Bbox', 'x y w h c')
+
+	if os.path.exists(LABELS):
+		with open(LABELS) as file:
+			label = json.load(file)
+		return label
+
+	label = {}
+	for file_name in os.listdir(META):
+		if file_name.endswith('.geojson'):
+			file = pygeoj.load(os.path.join(META, file_name))
+			for feature in file:
+				print(feature.properties['TAGUUID'])
+				img = JPEGImage(os.path.join(IMAGES, feature.properties['IMAGEUUID']+'.JPG'))
+				x1,y1,x2,y2 = feature.geometry.bbox
+				w,h = (x2-x1,y2-y1)
+				x,y = ((x1+x2)/2,(y1+y2)/2)
+				c = 1
+				bbox = Bbox(x/img.width,y/img.height,w/img.width,h/img.height,c)
+				if(feature.properties['IMAGEUUID'] in label):
+					label[feature.properties['IMAGEUUID']].append(bbox)
+				else:
+					label[feature.properties['IMAGEUUID']] = [bbox]
+	
+	with open(LABELS, 'w') as file:
+		json.dump(label, file)
+	return label
