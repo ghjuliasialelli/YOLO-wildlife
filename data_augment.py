@@ -154,7 +154,7 @@ def augment(imgs, all_labels):
 
         # Flip image with probability 1/2
         flip = np.random.choice([True, False],1)
-        if(flip): flipped_img, new_labels = flip(img, labels)
+        if(flip): flipped_img, flipped_labels = flip(img, labels)
         else : flipped_img, flipped_labels = img, labels
 
         for label in rotated_labels : 
