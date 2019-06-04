@@ -49,16 +49,15 @@ translation : (tx, ty) as array, list or tuple, optional
 def augment(imgs, labels):
     # parameter N : size of mini-batch
     N = 10
-
     ids = imgs.keys()
 
     # we randomly select N images from the pool of imgs
-    for idx in np.random.randint(0, len(imgs),N):
+    for idx in np.random.randint(0, len(imgs), N):
         im = imgs[ids[idx]].copy()
 
         rotated_im = rotate(im)
 
-        flip = np.random.choice([True, False],1)
+        flip = np.random.choice([True, False], 1)
         if(flip): flipped_im = flip(im)
 
         # yield img, label

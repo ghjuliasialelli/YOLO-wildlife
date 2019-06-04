@@ -50,6 +50,7 @@ def train(yolo: YOLO, data: Iterable[Tuple[Imgs, Labels]], lr: float, steps: int
 	'''
 	rloss = 0
 
+	# we treat this as a regression
 	lossf = nn.MSELoss()
 	opt = optim.SGD(yolo.parameters(), lr=lr, momentum=0.9)
 	for i, (imgs, lbls) in enumerate(data):
