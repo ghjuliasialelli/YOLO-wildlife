@@ -10,7 +10,7 @@ from typing import Iterable, Tuple
 from augment import datagen, Imgs, Labels
 
 structure = [
-		[
+	[
 		[3,64,3], #Conv2d layers (input,output,kernel size)
 		[64,64,3],
 		[64,64,3],
@@ -19,9 +19,9 @@ structure = [
 		[64,64,3],
 		[64,64,3],
 		[64,3,3],
-		],
-		[2,4,6] #layers at which to do a Maxpool2d(of 2) pooling
-		]
+	],
+	[2,4,6] #layers at which to do a Maxpool2d(of 2) pooling
+]
 
 
 class YOLO(nn.Module):
@@ -37,7 +37,7 @@ class YOLO(nn.Module):
 		self.pools = structure[1]
 	
 	def forward(self,x):
-		'''compute output of (batch size) * S * S * 3
+		'''compute output of (batch size) * Si * Sj * 3
 		'''
 		for i,conv in enumerate(self.convs):
 			if i in self.pools:
@@ -67,3 +67,4 @@ def train(yolo: YOLO, data: Iterable[Tuple[Imgs, Labels]], lr: float, steps: int
 		# expectation over loss, with recent loss more
 		# important
 		rloss = .9 * rloss + .1 * loss.item()
+		print(f'running loss: {rloss}')
