@@ -6,6 +6,7 @@ import click
 
 SOURCE = 'https://zenodo.org/record/1204408/files/savmap_dataset_v2.zip?download=1' 
 IMAGES, META, DATA = 'images', 'meta', 'data.zip'
+DOWNSCALED = 'downscaledby{}'
 
 @click.group()
 def cli():
@@ -40,3 +41,32 @@ def clean():
 	shutil.rmtree(IMAGES)
 	shutil.rmtree(META)
 	os.remove(DATA)
+
+def _images():
+	for p, ds, fs in os.walk(IMAGES):
+		for fname in fs:
+			if not fname.endswith('JPG'):
+				continue
+			yield os.path.join(p, fname)
+
+@cli.command()
+@click.argument('by')
+def downscale(by):
+	from skimage.transform import downscale_local_mean
+	from skimage.io import imread
+	import numpy as np
+	by = int(by)
+
+	if os.path.exists(DOWNSCALED.format(by)):
+		print('nothing to do')
+		return
+	os.mkdir(DOWNSCALED.format(by))
+
+	for imgp in _images():
+		arr = imread(imgp)
+		arr = downscale_local_mean(arr, (by, by, 1))
+		target = os.path.join(
+			DOWNSCALED.format(by),
+			os.path.basename(imgp[:-4]))
+		np.save(target, arr)
+		print(f'downscaled {os.path.basename(imgp)}')
