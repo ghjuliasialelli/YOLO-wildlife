@@ -1,5 +1,8 @@
 import copy
 
+Bbox = namedtuple('Bbox', 'x1 y1 x2 y2')
+
+Cbox = namedtuple('Cbox', 'x y w h')
 
 
 def IOU(B5, labels):
@@ -31,13 +34,16 @@ def center_to_bounding(box):
 		x1,y1,x2,y2 = (x-w,y-h,x+w,y+h)
 
 
+
 #pre_labels are namedtuples = (sx,sy,x,y,h,w)
-def get_label(X,labels):
-	Y = copy.deepcopy(X)
-	n = len(X)
+Label = namedtuple('Label', 'sx sy x y h w')
+def get_label(Y, labels):
+	Y = copy.deepcopy(Y)
+	n = len(Y)
 	for i in range(n):
 		for l in labels[i]:
 			for Y[i][l.sy][l.sx]:
+
 
 
 

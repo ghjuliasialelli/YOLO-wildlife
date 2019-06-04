@@ -78,7 +78,7 @@ def genlabels():
 	from jpegtran import JPEGImage
 	import pygeoj
 
-	Bbox = namedtuple('Bbox', 'x y w h c')
+	Cbox = namedtuple('Bbox', 'x y w h')
 
 	if os.path.exists(LABELS):
 		with open(LABELS) as file:
@@ -96,7 +96,7 @@ def genlabels():
 				w,h = (x2-x1,y2-y1)
 				x,y = ((x1+x2)/2,(y1+y2)/2)
 				c = 1
-				bbox = Bbox(x/img.width,y/img.height,w/img.width,h/img.height,c)
+				bbox = Cbox(x/img.width,y/img.height,w/img.width,h/img.height,c)
 				if(feature.properties['IMAGEUUID'] in label):
 					label[feature.properties['IMAGEUUID']].append(bbox)
 				else:
