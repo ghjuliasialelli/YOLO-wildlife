@@ -11,7 +11,8 @@ setup(
 		'torch', 'torchvision',
 
 		# preprocessing
-		'cffi', 'jpegtran',
+		'cffi', 'jpegtran-cffi',
+		'pygeoj',
 	],
 
 	entry_points={

@@ -52,9 +52,7 @@ def _images():
 @cli.command()
 @click.argument('by')
 def downscale(by):
-	from skimage.transform import downscale_local_mean
-	from skimage.io import imread
-	import numpy as np
+	from jpegtran import JPEGImage
 	by = int(by)
 
 	if os.path.exists(DOWNSCALED.format(by)):
@@ -63,10 +61,9 @@ def downscale(by):
 	os.mkdir(DOWNSCALED.format(by))
 
 	for imgp in _images():
-		arr = imread(imgp)
-		arr = downscale_local_mean(arr, (by, by, 1))
-		target = os.path.join(
+		img = JPEGImage(imgp)
+		new = img.downscale(img.width // by, img.height // by)
+		new.save(os.path.join(
 			DOWNSCALED.format(by),
-			os.path.basename(imgp[:-4]))
-		np.save(target, arr)
+			os.path.basename(imgp)))
 		print(f'downscaled {os.path.basename(imgp)}')
