@@ -1,9 +1,8 @@
-# fans-de-loan
-&lt;3 lolo, Seb, Ghju : la meilleure team 
-# riverdale
+# Wildlife detection on high-resolution drone images, a case- study of the Kuzikus Wildlife Reserve (Namibia)
+by TRICOT Loan, LABBE Sebastien, SIALELLI Ghjulia
 
 
-## lil setup tut
+## Setup
 ```sh
 python3.7 setup.py install
 ```
@@ -18,7 +17,7 @@ To remove all data:
 manage clean
 ```
 
-#Dataset : SAVMAP Dataset
+## Dataset : SAVMAP Dataset
 
 The dataset proposed here was acquired in May 2014 and contains:
 
