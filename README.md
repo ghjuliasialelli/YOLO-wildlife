@@ -1,4 +1,4 @@
-# Wildlife detection on high-resolution drone images, a case- study of the Kuzikus Wildlife Reserve (Namibia)
+# 🐘 Wildlife detection on high-resolution drone images, a case-study of the Kuzikus Wildlife Reserve (Namibia) 🛰️
 by TRICOT Loan, LABBE Sebastien, SIALELLI Ghjulia
 
 
@@ -17,7 +17,7 @@ To remove all data:
 manage clean
 ```
 
-## Dataset : SAVMAP Dataset
+## Dataset : [SAVMAP Dataset](https://zenodo.org/record/1204408#.YbjOHvHMLox)
 
 The dataset proposed here was acquired in May 2014 and contains:
 
